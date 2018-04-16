@@ -1,0 +1,17 @@
+{
+	"name": "bayardev/gitplusplus",
+	"description": "Composer extension to update project version and git version",
+	"type": "composer-plugin",
+	"licence": "MIT",
+	"require": {
+		"composer-plugin-api": "^1.1"
+	},
+	"autoload": {
+		"psr-4": {
+			"bayardev\\plugin\\gitplusplus": "src/"
+		}
+	},
+	"extra": {
+		"class": "bayardev\\plugin\\gitplusplus"
+	}
+}
