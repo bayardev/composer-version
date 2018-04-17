@@ -10,11 +10,11 @@ class Command extends BaseCommand
 {
     protected function configure()
     {
-        $this->setName('custom-plugin-command');
+        $this->setName('composer-version');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('Executing custer command composer');
+        $output->writeln('Still developing');
     }
 }
