@@ -14,7 +14,7 @@ class Plugin implements PluginInterface, Capable
 {
 	
 	public function activate(Composer $composer, IOInterface $io) {
-		exit(var_dump($composer->getPluginManager()->getPlugins()));
+		//exit(var_dump($composer->getPluginManager()->getPlugins()));
 	}
 
 	public function getCapabilities() {
