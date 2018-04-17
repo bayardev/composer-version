@@ -3,6 +3,16 @@
 	"description": "Composer extension to update project version",
 	"type": "composer-plugin",
 	"licence": "MIT",
+	"authors": [
+        {
+            "name": "Massimiliano Pasquesi",
+            "email": "massipasquesi@gmail.com"
+        },
+        {
+            "name": "Rémi Colet",
+            "email": "remi.colet@icloud.com"
+        }
+    ],
 	"require": {
 		"php": "^5.5.9|>=7.0.8",
 		"composer-plugin-api": "^1.1",
