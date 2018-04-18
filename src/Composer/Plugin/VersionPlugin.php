@@ -1,6 +1,6 @@
 <?php
 
-namespace Bayardev\Composer;
+namespace Bayard\Composer\Plugin;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
@@ -10,7 +10,7 @@ use Composer\Plugin\Capable;
 /**
 * 
 */
-class Plugin implements PluginInterface, Capable
+class VersionPlugin implements PluginInterface, Capable
 {
 	
 	public function activate(Composer $composer, IOInterface $io) {
@@ -18,7 +18,7 @@ class Plugin implements PluginInterface, Capable
 	}
 
 	public function getCapabilities() {
-		return array('Composer\Plugin\Capability\CommandProvider' => 'Bayardev\Composer\CommandProvider' );
+		return array('Composer\Plugin\Capability\CommandProvider' => 'Bayard\Composer\Plugin\Capability\CommandProvider' );
 	}
 
 }
