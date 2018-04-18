@@ -8,6 +8,6 @@ class CommandProvider implements CommandProviderCapability
 {
     public function getCommands()
     {
-        return array(new Bayard\Composer\Command\VersionCommand);
+        return array(new \Bayard\Composer\Command\VersionCommand);
     }
 }
