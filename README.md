@@ -2,6 +2,11 @@
 
 **WORK IN PROGRESS : DON'T USE IT NOW !**
 
+A composer plugin that helps with releasing semantically versioned composer packages or projects,
+automatically adding git tags.
+
+Inspired by [npm version](https://docs.npmjs.com/cli/version).
+
 ## Install
 
 You can add it as a dependency in your projects or globally on your machine
