@@ -7,9 +7,6 @@ use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Plugin\Capable;
 
-/**
-* 
-*/
 class VersionPlugin implements PluginInterface, Capable
 {
 	
