@@ -23,8 +23,8 @@ class VersionCommand extends BaseCommand
         	->setDescription('Show/Update/Modifie composer.json and/or git tag version')
         	->setDefinition(array(
                 new InputOption('root', 'r', InputOption::VALUE_REQUIRED, "Root to the project", "./"),
-                new InputOption('prefix', 'p', InputOption::VALUE_REQUIRED, "set tag prefix"),
-                new InputOption('gpg-sign', 's', InputOption::VALUE_REQUIRED, "sign tag with gpg key"),
+                new InputOption('prefix', 'p', InputOption::VALUE_REQUIRED, "set tag prefix", ""),
+                new InputOption('gpg-sign', 's', InputOption::VALUE_NONE, "sign tag with gpg key"),
                 new InputArgument('new-version', InputArgument::OPTIONAL, "Type of update version (major|minor|patch or a direct version like 0.0.1)"),
         	 ))
         	->setHelp(<<<EOT
@@ -51,7 +51,6 @@ EOT
                     $output->writeln("Old version project : ".$this->VERSION_PROJECT);
                     $this->VERSION_PROJECT = $input->getArgument('new-version');
                 } else {
-                    $output->writeln("test 1");
                     $explode_version = explode('.', $this->VERSION_PROJECT);
                     switch ($input->getArgument('new-version')) {
                         case 'major':
@@ -74,14 +73,11 @@ EOT
                     $output->writeln("Old version project : ".$this->VERSION_PROJECT);
                     $this->VERSION_PROJECT = implode('.', $explode_version);
                 }
-                exit(var_dump($this->VERSION_PROJECT));
                 file_put_contents($project_root.$this->NAME_VERSION_FILE, $this->VERSION_PROJECT);
                 $output->writeln("New version project : ".$this->VERSION_PROJECT);
-
-                // exec("cd .$project_root; git add $this->NAME_GIT_FOLDER; git commit -m \"New Version : $this->VERSION_PROJECT\"; ");
-
             } else {
                 $output->writeln("Project version : ".$this->VERSION_PROJECT);
+                exit();
             }
         } else {
 
@@ -99,6 +95,15 @@ EOT
                 $output->writeln("It will be created !");
             }
         }
+
+        if($this->VERSION_PROJECT !== "0.0.0") {
+            $optAddTag = $input->getOption('gpg-sign') ? "-s" : "-a";
+            shell_exec("cd $project_root; \
+                git add $this->NAME_VERSION_FILE; \
+                git commit -m \"New Version : $this->VERSION_PROJECT\"; \
+                git tag $optAddTag ".$input->getOption('prefix')."$this->VERSION_PROJECT  -m \"New version $this->VERSION_PROJECT\" \$(git log --format=\"%H\" -n 1)"
+            );
+        } 
 
         $output->writeln("THE END!!!");
     }
