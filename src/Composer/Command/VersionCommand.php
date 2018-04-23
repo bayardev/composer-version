@@ -8,27 +8,23 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Composer\Command\BaseCommand;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Bayard\Composer\Manager\VersionManager;
+use Bayard\Composer\Manager\GitManager;
 
 class VersionCommand extends BaseCommand
 {
-
-    protected $NAME_VERSION_FILE = 'VERSION';
-    protected $NAME_GIT_FOLDER = '.git';
-    protected $VERSION_PROJECT = "0.0.0";
-
     protected function configure()
     {
         $this
         	->setName('version')
-        	->setDescription('Show/Update/Modifie composer.json and/or git tag version')
+        	->setDescription('Plugin that helps with releasing semantically versioned composer packages or projects.')
         	->setDefinition(array(
-                new InputOption('root', 'r', InputOption::VALUE_REQUIRED, "Root to the project", "./"),
                 new InputOption('prefix', 'p', InputOption::VALUE_REQUIRED, "set tag prefix", ""),
                 new InputOption('gpg-sign', 's', InputOption::VALUE_NONE, "sign tag with gpg key"),
                 new InputArgument('new-version', InputArgument::OPTIONAL, "Type of update version (major|minor|patch or a direct version like 0.0.1)"),
         	 ))
         	->setHelp(<<<EOT
-The composer-version command display/update/create composer.json/git version
+A composer plugin that helps with releasing semantically versioned composer packages or projects, automatically adding git tags.
 EOT
 			);
     }
@@ -36,73 +32,56 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-        $return_root = $input->getOption("root");
-        $project_root = substr($return_root, -1) == '/' ? $return_root : $return_root.'/';
+        $versionManager = new VersionManager();
+        $gitManager = new GitManager();
 
-        if(!file_exists($project_root.$this->NAME_GIT_FOLDER)) {
+        $output->writeln("Start the composer plugin : VERSION");
+
+        if(!file_exists($gitManager->getGitFile())) {
             $output->writeln("This is not GIT repository !");
             exit(502);
         }
 
-        if(file_exists($project_root.$this->NAME_VERSION_FILE)) {
-            $this->VERSION_PROJECT = file_get_contents($project_root.$this->NAME_VERSION_FILE);
+        if(file_exists($versionManager->getVersionFile())) {
             if($input->getArgument('new-version')){
-                if(preg_match('#^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}(-[[:graph:]]+[[:alnum:]]){0,1}#', $input->getArgument('new-version'))) {
-                    $output->writeln("Old version project : ".$this->VERSION_PROJECT);
-                    $this->VERSION_PROJECT = $input->getArgument('new-version');
-                } else {
-                    $explode_version = explode('.', $this->VERSION_PROJECT);
-                    switch ($input->getArgument('new-version')) {
-                        case 'major':
-                            $explode_version[0] = ((int)$explode_version[0])+1;
-                            $explode_version[1] = '0';
-                            $explode_version[2] = '0';
-                            break;
-                        case 'minor':
-                            $explode_version[1] = ((int)$explode_version[1])+1;
-                            $explode_version[2] = '0';
-                            break;
-                        case 'patch':
-                            $explode_version[2] = ((int)$explode_version[2])+1;
-                            break;
-                        default:
-                            $output->writeln("ERROR : major|minor|patch or a direct version like 0.0.1");
-                            exit(1);
-                            break;
-                    }
-                    $output->writeln("Old version project : ".$this->VERSION_PROJECT);
-                    $this->VERSION_PROJECT = implode('.', $explode_version);
+                $output->writeln("Old version project : ".$versionManager->getAppVersion());
+                if(!$versionManager->setAppVersion($input->getArgument('new-version'))) {
+                    $output->writeln("ERROR : major|minor|patch or a direct version like 0.0.1");
+                    exit(502);
                 }
-                file_put_contents($project_root.$this->NAME_VERSION_FILE, $this->VERSION_PROJECT);
-                $output->writeln("New version project : ".$this->VERSION_PROJECT);
+                $output->writeln("New version project : ".$versionManager->getAppVersion());
             } else {
-                $output->writeln("Project version : ".$this->VERSION_PROJECT);
+                $output->writeln("Project version : ".$versionManager->getAppVersion());
                 exit();
             }
         } else {
-
-            if($input->getArgument('new-version')){
-                if(preg_match('#^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}(-[[:graph:]]+[[:alnum:]]){0,1}#', $input->getArgument('new-version'))) {
-                    $this->VERSION_PROJECT = $input->getArgument('new-version');
-                } else {
-                    $output->writeln("I don't understand");
-                }
-            }
             $output->writeln("File VERSION not exist");
-            $anwser = $io->choice("Create this file ? [".$this->VERSION_PROJECT."]", array("yes", "no"), "yes");
+            $version = "0.0.0";
+            if($input->getArgument('new-version')){
+                if(!$versionManager->followConvetion($input->getArgument('new-version'))) {
+                    $output->writeln("I don't understand");
+                    exit(502);
+                }
+                $version = $input->getArgument('new-version');
+            }
+            
+            $anwser = $io->choice("Create this file ? [".$version."]", array("yes", "no"), "yes");
             if($anwser === "yes") {
-                exec("echo ".$this->VERSION_PROJECT. " > ".$project_root.$this->NAME_VERSION_FILE);
-                $output->writeln("It will be created !");
+                $versionManager->setAppVersion($version);
+                $output->writeln("File created !");
+            } else {
+                exit($output->writeln("File not created !\nTHE END!!!"));
             }
         }
 
-        if($this->VERSION_PROJECT !== "0.0.0") {
-            $optAddTag = $input->getOption('gpg-sign') ? "-s" : "-a";
-            shell_exec("cd $project_root; \
-                git add $this->NAME_VERSION_FILE; \
-                git commit -m \"New Version : $this->VERSION_PROJECT\"; \
-                git tag $optAddTag ".$input->getOption('prefix')."$this->VERSION_PROJECT  -m \"New version $this->VERSION_PROJECT\" \$(git log --format=\"%H\" -n 1)"
-            );
+        if($versionManager->getAppVersion() !== "0.0.0") {
+            $gitManager->setGpgSign($input->getOption('gpg-sign'));
+            if($input->getOption('prefix'))
+                $gitManager->setPrefixTag($input->getOption('prefix'));
+            $gitManager->gitAdd($versionManager->getVersionFile(), $versionManager->getAppVersion());
+            $output->writeln("VERSION file add and commit in repository");
+            $gitManager->gitTag($versionManager->getAppVersion());
+            $output->writeln("tag ".$input->getOption('prefix').$versionManager->getAppVersion()." add in repository");
         } 
 
         $output->writeln("THE END!!!");
