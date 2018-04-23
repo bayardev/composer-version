@@ -23,7 +23,7 @@ class VersionManager
 
     public function setAppVersion($version)
     {
-        if($this->followConvetion($version)) {
+        if($this->followConvention($version)) {
             file_put_contents($this->getVersionFile(), $version);
             return 1;
         } else {
@@ -45,13 +45,13 @@ class VersionManager
                     return 0;
                     break;
             }
-            
+
             file_put_contents($this->getVersionFile(), implode('.', $explode_version));
             return 1;
         }
     }
 
-    public function followConvetion($verison)
+    public function followConvention($verison)
     {
         return preg_match('#^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}(-[[:graph:]]+[[:alnum:]]){0,1}#', $verison);
     }

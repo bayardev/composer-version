@@ -58,7 +58,7 @@ EOT
             $output->writeln("File VERSION not exist");
             $version = "0.0.0";
             if($input->getArgument('new-version')){
-                if(!$versionManager->followConvetion($input->getArgument('new-version'))) {
+                if(!$versionManager->followConvention($input->getArgument('new-version'))) {
                     $output->writeln("I don't understand");
                     exit(502);
                 }
@@ -76,8 +76,8 @@ EOT
 
         if($versionManager->getAppVersion() !== "0.0.0") {
             $gitManager->setGpgSign($input->getOption('gpg-sign'));
-            if($input->getOption('prefix'))
-                $gitManager->setPrefixTag($input->getOption('prefix'));
+            //exit(var_dump($input->getOption('prefix')));
+            $gitManager->setPrefixTag($input->getOption('prefix'));
             $gitManager->gitAdd($versionManager->getVersionFile(), $versionManager->getAppVersion());
             $output->writeln("VERSION file add and commit in repository");
             $gitManager->gitTag($versionManager->getAppVersion());
