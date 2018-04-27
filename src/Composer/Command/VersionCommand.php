@@ -1,4 +1,13 @@
 <?php
+/**
+ * Class VersionCommand | Composer/Command/VersionCommand.php
+ *
+ * @package Bayard\Composer\Command
+ * @author Massimiliano Pasquesi <massimiliano.pasquesi@bayard-presse.com>
+ * @author Rémi Colet            <remi.colet@icloud.com>
+ * @copyright 2016 Bayard Presse (http://www.groupebayard.com)
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ */
 
 namespace Bayard\Composer\Command;
 
@@ -11,8 +20,34 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Bayard\Composer\Manager\VersionManager;
 use Bayard\Composer\Manager\GitManager;
 
+/**
+ * Commande "version"
+ */
 class VersionCommand extends BaseCommand
 {
+
+    /**
+     * Permet l'affichage de message sur terminal
+     * @var SymfonyStyle
+     */
+    protected $io;
+
+    /**
+     * Gestion des version
+     * @var VersionManager
+     */
+    protected $versionManager;
+
+    /**
+     * Gestion des répository
+     * @var GitManager
+     */
+    protected $gitManager;
+
+    /**
+     * Configuration de notre commande "version"
+     * @return void
+     */
     protected function configure()
     {
         $this
@@ -23,66 +58,103 @@ class VersionCommand extends BaseCommand
                 new InputOption('gpg-sign', 's', InputOption::VALUE_NONE, "sign tag with gpg key"),
                 new InputArgument('new-version', InputArgument::OPTIONAL, "Type of update version (major|minor|patch or a direct version like 0.0.1)"),
         	 ))
-        	->setHelp(<<<EOT
-A composer plugin that helps with releasing semantically versioned composer packages or projects, automatically adding git tags.
-EOT
-			);
+        	->setHelp("A composer plugin that helps with releasing semantically versioned composer packages or projects, automatically adding git tags.");
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    /**
+     * Initialisation des attribut
+     * @param  InputInterface $input
+     * @param  OutputInterface $output
+     * @return VersionCommand
+     */
+    protected function init(InputInterface $input, OutputInterface $output)
     {
-        $io = new SymfonyStyle($input, $output);
-        $versionManager = new VersionManager();
-        $gitManager = new GitManager();
+        $this->io = new SymfonyStyle($input, $output);
+        $this->versionManager = new VersionManager();
+        $this->gitManager = new GitManager($input->getOption('gpg-sign'), $input->getOption('prefix'));
+        return $this;
+    }
 
-        $output->writeln("Start the composer plugin : VERSION");
-
-        if(!file_exists($gitManager->getGitFile())) {
+    /**
+     * Vérifie que nous nous trouvons dans un bonne environnement pour exécuter la commande
+     * @param  OutputInterface $output
+     * @return VersionCommand
+     */
+    protected function initialCheck(OutputInterface $output) 
+    {
+        if(!$this->gitManager->isGitRepository()) {//Problème nom
             $output->writeln("This is not GIT repository !");
             exit(502);
         }
+        return $this;
+    }
 
-        if(file_exists($versionManager->getVersionFile())) {
-            if($input->getArgument('new-version')){
-                $output->writeln("Old version project : ".$versionManager->getAppVersion());
-                if(!$versionManager->setAppVersion($input->getArgument('new-version'))) {
-                    $output->writeln("ERROR : major|minor|patch or a direct version like 0.0.1");
-                    exit(502);
-                }
-                $output->writeln("New version project : ".$versionManager->getAppVersion());
-            } else {
-                $output->writeln("Project version : ".$versionManager->getAppVersion());
-                exit();
-            }
-        } else {
-            $output->writeln("File VERSION not exist");
-            $version = "0.0.0";
-            if($input->getArgument('new-version')){
-                if(!$versionManager->followConvention($input->getArgument('new-version'))) {
-                    $output->writeln("I don't understand");
-                    exit(502);
-                }
-                $version = $input->getArgument('new-version');
-            }
-            
-            $anwser = $io->choice("Create this file ? [".$version."]", array("yes", "no"), "yes");
-            if($anwser === "yes") {
-                $versionManager->setAppVersion($version);
-                $output->writeln("File created !");
-            } else {
-                exit($output->writeln("File not created !\nTHE END!!!"));
-            }
+    /**
+     * Initialise la version courante et vérifie si il existe un argument
+     * @param  InputInterface $input
+     * @param  OutputInterface $output
+     * @return VersionCommand
+     */
+    protected function getCurrentVersion(InputInterface $input, OutputInterface $output)
+    {
+        $this->versionManager->checkVersionFile();
+        if(!$input->getArgument('new-version')) {
+            $output->writeln("Project version : ".$this->versionManager->getAppVersion());
+            exit();
         }
+        return $this;
+    }
 
-        if($versionManager->getAppVersion() !== "0.0.0") {
-            $gitManager->setGpgSign($input->getOption('gpg-sign'));
-            //exit(var_dump($input->getOption('prefix')));
-            $gitManager->setPrefixTag($input->getOption('prefix'));
-            $gitManager->gitAdd($versionManager->getVersionFile(), $versionManager->getAppVersion());
-            $output->writeln("VERSION file add and commit in repository");
-            $gitManager->gitTag($versionManager->getAppVersion());
-            $output->writeln("tag ".$input->getOption('prefix').$versionManager->getAppVersion()." add in repository");
-        } 
+    /**
+     * Vérifie la sémantique de la version passer en argument
+     * @param  InputInterface $input
+     * @param  OutputInterface $output
+     * @return VersionCommand
+     */
+    protected function getArguments(InputInterface $input, OutputInterface $output) 
+    {
+        if(!$this->versionManager->checkVersion($input->getArgument('new-version'))) {
+            $output->writeln("Only accept Semantic Version major.minor.patch[-pre_release]");
+            $output->writeln("See https://semver.org/");
+            exit(400);
+        }
+        $this->versionManager->putVersionFile();
+        return $this;
+    }
+
+    /**
+     * Réaliser l'ajout et le commit de la mise à jour du fichier contenant la version et met à jour le tag du repository
+     * @return VersionCommand
+     */
+    protected function gitManagement()
+    {
+        if($this->versionManager->getAppVersion() !== "0.0.0") {
+            $this->gitManager->gitAddNewTag($this->versionManager->getVersionFile(), $this->versionManager->getAppVersion());
+        }
+        return $this;
+    }
+
+    /**
+     * Execution de la commande "version"
+     * @param  InputInterface  $input
+     * @param  OutputInterface $output
+     */
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $this->init($input, $output);
+
+        $this->initialCheck($output);
+
+        $output->writeln("Start the composer plugin : VERSION");
+        
+        $this->getCurrentVersion($input, $output);
+        $this->getArguments($input, $output);
+
+        $output->writeln("New Version : ".$this->versionManager->getAppVersion());
+
+        $this->gitManagement();
+
+        $output->writeln("New version commit and tag update");
 
         $output->writeln("THE END!!!");
     }
