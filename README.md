@@ -1,6 +1,10 @@
 # Composer-version
 
-**WORK IN PROGRESS : DON'T USE IT NOW !**
+[![Latest Stable Version](https://poser.pugx.org/bayardev/composer-version/v/stable)](https://packagist.org/packages/bayardev/composer-version)
+[![Latest Unstable Version](https://poser.pugx.org/bayardev/composer-version/v/unstable)](https://packagist.org/packages/bayardev/composer-version#dev-master)
+[![PHP required version](https://img.shields.io/badge/php-%3E%3D5.6-8892BF.svg?style=flat-square)](https://github.com/bayardev/composer-version/blob/master/composer.json)
+[![License](https://poser.pugx.org/bayardev/composer-version/license)](https://github.com/bayardev/composer-version/blob/master/LICENCE)
+[![Total Downloads](https://poser.pugx.org/bayardev/composer-version/downloads)](https://packagist.org/packages/bayardev/composer-version)
 
 A composer plugin that helps with releasing semantically versioned composer packages or projects,
 automatically adding git tags.

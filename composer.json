@@ -1,6 +1,7 @@
 {
 	"name": "bayardev/composer-version",
 	"description": "Composer extension to update project version",
+    "keywords": ["composer-plugin", "version-manager", "git-tags", "semver"],
 	"type": "composer-plugin",
 	"licence": "MIT",
 	"authors": [
@@ -28,5 +29,9 @@
 	},
 	"require-dev": {
 		"composer/composer": "^1.6"
-	}
-}
+	},
+	"extra": {
+        "branch-alias": {
+            "dev-master": "0.x-dev"
+        }
+    }
