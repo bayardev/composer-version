@@ -3,7 +3,7 @@
 	"description": "Composer extension to update project version",
     "keywords": ["composer-plugin", "version-manager", "git-tags", "semver"],
 	"type": "composer-plugin",
-	"licence": "MIT",
+	"license": "MIT",
 	"authors": [
         {
             "name": "Massimiliano Pasquesi",
