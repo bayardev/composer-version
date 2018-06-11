@@ -18,10 +18,10 @@ use Composer\Plugin\Capability\CommandProvider as CommandProviderCapability;
  */
 class CommandProvider implements CommandProviderCapability
 {
-	/**
-	 * Retourne les commandes du plugin
-	 * @return array Listes de différentes commandes
-	 */
+    /**
+     * Retourne les commandes du plugin
+     * @return array Listes de différentes commandes
+     */
     public function getCommands()
     {
         return array(new \Bayard\Composer\Command\VersionCommand);

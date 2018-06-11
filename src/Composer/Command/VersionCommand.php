@@ -51,14 +51,20 @@ class VersionCommand extends BaseCommand
     protected function configure()
     {
         $this
-        	->setName('version')
-        	->setDescription('Plugin that helps with releasing semantically versioned composer packages or projects.')
-        	->setDefinition(array(
+            ->setName('version')
+            ->setDescription('Plugin that helps with releasing semantically versioned composer packages or projects.')
+            ->setDefinition(array(
                 new InputOption('prefix', 'p', InputOption::VALUE_REQUIRED, "set tag prefix", ""),
                 new InputOption('gpg-sign', 's', InputOption::VALUE_NONE, "sign tag with gpg key"),
-                new InputArgument('new-version', InputArgument::OPTIONAL, "Type of update version (major|minor|patch or a direct version like 0.0.1)"),
-        	 ))
-        	->setHelp("A composer plugin that helps with releasing semantically versioned composer packages or projects, automatically adding git tags.");
+                new InputArgument(
+                    'new-version',
+                    InputArgument::OPTIONAL,
+                    "Type of update version (major|minor|patch or a direct version like 0.0.1)"
+                ),
+             ))
+            ->setHelp("A composer plugin that helps with releasing 
+                semantically versioned composer packages or projects, 
+                automatically adding git tags.");
     }
 
     /**
@@ -80,9 +86,9 @@ class VersionCommand extends BaseCommand
      * @param  OutputInterface $output
      * @return VersionCommand
      */
-    protected function initialCheck(OutputInterface $output) 
+    protected function initialCheck(OutputInterface $output)
     {
-        if(!$this->gitManager->isGitRepository()) {//Problème nom
+        if (!$this->gitManager->isGitRepository()) {//Problème nom
             $output->writeln("This is not GIT repository !");
             exit(502);
         }
@@ -98,7 +104,7 @@ class VersionCommand extends BaseCommand
     protected function getCurrentVersion(InputInterface $input, OutputInterface $output)
     {
         $this->versionManager->checkVersionFile();
-        if(!$input->getArgument('new-version')) {
+        if (!$input->getArgument('new-version')) {
             $output->writeln("Project version : ".$this->versionManager->getAppVersion());
             exit();
         }
@@ -111,9 +117,9 @@ class VersionCommand extends BaseCommand
      * @param  OutputInterface $output
      * @return VersionCommand
      */
-    protected function getArguments(InputInterface $input, OutputInterface $output) 
+    protected function getArguments(InputInterface $input, OutputInterface $output)
     {
-        if(!$this->versionManager->checkVersion($input->getArgument('new-version'))) {
+        if (!$this->versionManager->checkVersion($input->getArgument('new-version'))) {
             $output->writeln("Only accept Semantic Version major.minor.patch[-pre_release]");
             $output->writeln("See https://semver.org/");
             exit(400);
@@ -123,13 +129,17 @@ class VersionCommand extends BaseCommand
     }
 
     /**
-     * Réaliser l'ajout et le commit de la mise à jour du fichier contenant la version et met à jour le tag du repository
+     * Réaliser l'ajout et le commit de la mise à jour du
+     * fichier contenant la version et met à jour le tag du repository
      * @return VersionCommand
      */
     protected function gitManagement()
     {
-        if($this->versionManager->getAppVersion() !== "0.0.0") {
-            $this->gitManager->gitAddNewTag($this->versionManager->getVersionFile(), $this->versionManager->getAppVersion());
+        if ($this->versionManager->getAppVersion() !== "0.0.0") {
+            $this->gitManager->gitAddNewTag(
+                $this->versionManager->getVersionFile(),
+                $this->versionManager->getAppVersion()
+            );
         }
         return $this;
     }

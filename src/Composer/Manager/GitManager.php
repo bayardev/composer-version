@@ -79,7 +79,7 @@ class GitManager
      * [isGitRepository description]
      * @return boolean [description]
      */
-    public function isGitRepository() 
+    public function isGitRepository()
     {
         return is_dir($this->getGitDir());
     }
@@ -119,7 +119,10 @@ class GitManager
      */
     public function gitTag($tag)
     {
-        shell_exec("git tag ".$this->gpgSign." ".$this->prefixTag.$tag." -m \"New version ".$tag."\" \$(git log --format=\"%H\" -n 1)");
+        shell_exec("git tag "
+            .$this->gpgSign." "
+            .$this->prefixTag.$tag." -m \"New version "
+            .$tag."\" \$(git log --format=\"%H\" -n 1)");
         return $this;
     }
 
@@ -129,7 +132,7 @@ class GitManager
      * @param  string $version
      * @return GitManager
      */
-    public function gitAddNewTag($file, $version) 
+    public function gitAddNewTag($file, $version)
     {
         $this->gitAdd($file)
             ->gitCommit($file, $version)

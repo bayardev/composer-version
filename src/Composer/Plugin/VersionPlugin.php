@@ -21,20 +21,22 @@ use Composer\Plugin\Capable;
  */
 class VersionPlugin implements PluginInterface, Capable
 {
-	/**
-	 * Méthode appelé après la chargement du plugin
-	 * @param  Composer    $composer
-	 * @param  IOInterface $io
-	 */
-	public function activate(Composer $composer, IOInterface $io) {
-	}
+    /**
+     * Méthode appelé après la chargement du plugin
+     * @param  Composer    $composer
+     * @param  IOInterface $io
+     */
+    public function activate(Composer $composer, IOInterface $io)
+    {
+    }
 
-	/**
-	 * Permet de retourner les différentes capacitées du plugin
-	 * @return array Listes des capacitées du plugin
-	 */
-	public function getCapabilities() {
-		return array('Composer\Plugin\Capability\CommandProvider' => 'Bayard\Composer\Plugin\Capability\CommandProvider' );
-	}
-
+    /**
+     * Permet de retourner les différentes capacitées du plugin
+     * @return array Listes des capacitées du plugin
+     */
+    public function getCapabilities()
+    {
+        return array(
+            'Composer\Plugin\Capability\CommandProvider' => 'Bayard\Composer\Plugin\Capability\CommandProvider' );
+    }
 }

@@ -61,7 +61,7 @@ class VersionManager
      */
     public function checkVersion($version)
     {
-        if($this->followConvention($version)) {
+        if ($this->followConvention($version)) {
             $this->currentVersion = $version;
             return 1;
         } else {
@@ -104,7 +104,7 @@ class VersionManager
      */
     public function checkVersionFile()
     {
-        if(file_exists($this->getVersionFile())) {
+        if (file_exists($this->getVersionFile())) {
             $this->currentVersion = file_get_contents($this->getVersionFile());
         }
         return $this;
