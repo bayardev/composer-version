@@ -21,7 +21,7 @@
 
     <filter>
       <whitelist processUncoveredFilesFromWhitelist="true">
-        <directory suffix=".php">./src/RollingLog</directory>
+        <directory suffix=".php">./src/Composer</directory>
       </whitelist>
     </filter>
 

@@ -2,3 +2,4 @@
 *.nogit*
 docs/
 composer.lock
+coverage.xml
