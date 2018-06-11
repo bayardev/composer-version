@@ -25,14 +25,12 @@
 		}
 	},
 	"extra": {
-		"class": "Bayard\\Composer\\Plugin\\VersionPlugin"
-	},
-	"require-dev": {
-		"composer/composer": "^1.6"
-	},
-	"extra": {
-        "branch-alias": {
+		"class": "Bayard\\Composer\\Plugin\\VersionPlugin",
+		"branch-alias": {
             "dev-master": "1.x-dev"
         }
-    }
+    },
+	"require-dev": {
+		"composer/composer": "^1.6"
+	} 
 }
