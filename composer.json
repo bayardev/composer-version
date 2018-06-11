@@ -24,6 +24,9 @@
 			"Bayard\\": "src/"
 		}
 	},
+	"autoload-dev": {
+        "psr-4": {"Bayard\\Tests\\": "tests/"}
+    },
 	"extra": {
 		"class": "Bayard\\Composer\\Plugin\\VersionPlugin",
 		"branch-alias": {
