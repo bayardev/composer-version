@@ -56,6 +56,16 @@ class GitManager
     }
 
     /**
+     * retourne la valeur de l'attribut $gpgSign
+     * @param boolean $gpg_sign Si true $gpgSign="-s", sinon $gpgSign="-a"
+     * @return GitManager
+     */
+    public function getGpgSign()
+    {
+        return $this->gpgSign;
+    }
+
+    /**
      * Configuration de l'attribut $prefixTag
      * @param string $prefix_tag
      * @return GitManager
@@ -67,10 +77,20 @@ class GitManager
     }
 
     /**
+     * retourne la valeur de l'attribut $gpgSign
+     * @param boolean $gpg_sign Si true $gpgSign="-s", sinon $gpgSign="-a"
+     * @return GitManager
+     */
+    public function getPrefixTag()
+    {
+        return $this->prefixTag;
+    }
+
+    /**
      * Retourne le nom du dossier du repository
      * @return string
      */
-    protected function getGitDir()
+    public function getGitDir()
     {
         return self::GIT_DIR;
     }
