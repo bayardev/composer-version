@@ -26,16 +26,6 @@ class GitManagerTest extends TestCase
         );
     }
 
-    public function setUp()
-    {
-        //$this->version = file_get_contents("VERSION");
-    }
-
-    public function tearDown()
-    {
-        //file_put_contents("VERSION", $this->version);
-    }
-
     /**
      * @dataProvider configProvider
      */
