@@ -94,16 +94,16 @@ class VersionManagerTest extends TestCase
         $this->assertFileIsWritable($vm->getVersionFile());
         switch ($versionCheck) {
             case "patch":
-                $this->assertFileIsWritable($vm->getVersionFile(), "0.0.1");
+                $this->assertEquals($vm->checkVersionFile()->getAppVersion(), "0.0.1");
                 break;
             case "minor":
-                $this->assertFileIsWritable($vm->getVersionFile(), "0.1.0");
+                $this->assertEquals($vm->checkVersionFile()->getAppVersion(), "0.1.0");
                 break;
             case "major":
-                $this->assertFileIsWritable($vm->getVersionFile(), "1.0.0");
+                $this->assertEquals($vm->checkVersionFile()->getAppVersion(), "1.0.0");
                 break;
             default: //Test followConvention function
-                $this->assertFileIsWritable($vm->getVersionFile(), $versionCheck);
+                $this->assertEquals($vm->checkVersionFile()->getAppVersion(), $versionCheck);
                 break;
         }
         unlink($vm->getVersionFile());
