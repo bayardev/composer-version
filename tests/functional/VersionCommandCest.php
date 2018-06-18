@@ -34,7 +34,7 @@ class VersionCommandCest
     {
         $I->am('Noob client');
         $I->wantTo('Enter a bad command');
-        $I->runShellCommand("php composer.phar notFound > /dev/null 2>&1", false);
+        $I->runShellCommand("composer notFound > /dev/null 2>&1", false);
         $I->seeResultCodeIsNot(0);
     }
 
@@ -42,7 +42,7 @@ class VersionCommandCest
     {
         $I->am('Client');
         $I->wantTo('Enter a good command');
-        $I->runShellCommand("php composer.phar version");
+        $I->runShellCommand("composer version");
         $I->seeResultCodeIs(0);
     }
 
@@ -55,7 +55,7 @@ class VersionCommandCest
         $I->am('Client');
         $I->wantTo('Enter command to upgrade version project');
         if (preg_match('#^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}(-[[:graph:]]+[[:alnum:]]){0,1}#', $exemple["version"])) {
-            $I->runShellCommand("php composer.phar version -p v ".$exemple["version"]);
+            $I->runShellCommand("composer version -p v ".$exemple["version"]);
             $I->seeResultCodeIs(0);
             $I->assertEquals(exec("echo $(git log -1 --pretty=%B)"), "New Version : ".$exemple["version"]);
             $I->assertEquals(exec("echo $(git describe --abbrev=0 --tags)"), "v".$exemple["version"]);
@@ -64,25 +64,25 @@ class VersionCommandCest
             $var = explode('.', $result[0]);
             switch ($exemple["version"]) {
                 case 'major':
-                    $I->runShellCommand("php composer.phar version -p v ".$exemple["version"]);
+                    $I->runShellCommand("composer version -p v ".$exemple["version"]);
                     $I->seeResultCodeIs(0);
                     $var[0]++;
                     $var[1] = 0;
                     $var[2] = 0;
                     break;
                 case 'minor':
-                    $I->runShellCommand("php composer.phar version -p v ".$exemple["version"]);
+                    $I->runShellCommand("composer version -p v ".$exemple["version"]);
                     $I->seeResultCodeIs(0);
                     $var[1]++;
                     $var[2] = 0;
                     break;
                 case 'patch':
-                    $I->runShellCommand("php composer.phar version -p v ".$exemple["version"]);
+                    $I->runShellCommand("composer version -p v ".$exemple["version"]);
                     $I->seeResultCodeIs(0);
                     $var[2]++;
                     break;
                 default:
-                    $I->runShellCommand("php composer.phar version -p v ".$exemple["version"]);
+                    $I->runShellCommand("composer version -p v ".$exemple["version"]);
                     $I->seeResultCodeIsNot(0);
                     $tmp = false;
                     break;
