@@ -3,10 +3,12 @@
 namespace Bayard\Tests\Composer\Manager;
 
 use Bayard\Composer\Manager\GitManager;
-use PHPUnit\Framework\TestCase;
 
-class GitManagerTest extends TestCase
+class GitManagerTest extends \Codeception\Test\Unit
 {
+    /**
+     * @return array
+     */
     public function configProvider()
     {
         return array(
@@ -17,11 +19,12 @@ class GitManagerTest extends TestCase
         );
     }
 
+    /**
+     * @return array
+     */
     public function versionTruePrivider()
     {
         return array(
-            array("19.0.2"),
-            array("10.0.0"),
             array("10.11.2")
         );
     }

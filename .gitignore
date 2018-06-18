@@ -3,3 +3,4 @@
 docs/
 composer.lock
 coverage.xml
+coverage.serialized

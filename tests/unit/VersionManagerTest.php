@@ -1,14 +1,19 @@
 <?php
 
-namespace Bayard\Tests\Composer\Manager;
+namespace Bayard\Tests\Unit;
 
 use Bayard\Composer\Manager\VersionManager;
-use PHPUnit\Framework\TestCase;
 
-class VersionManagerTest extends TestCase
+/**
+ * Undocumented class
+ */
+class VersionManagerTest extends \Codeception\Test\Unit
 {
     private $version;
 
+    /**
+     * @return array
+     */
     public function versionTruePrivider()
     {
         return array(
@@ -26,21 +31,24 @@ class VersionManagerTest extends TestCase
         );
     }
 
-    public function setUp()
-    {
-        $this->version = file_get_contents("VERSION");
-    }
-
-    public function tearDown()
-    {
-        file_put_contents("VERSION", $this->version);
-    }
-
+    /**
+     * @return array
+     */
     public function versionFalsePrivider()
     {
         return array(
             array("testFail")
         );
+    }
+
+    public function _before()
+    {
+        $this->version = file_get_contents("VERSION");
+    }
+
+    public function _after()
+    {
+        file_put_contents("VERSION", $this->version);
     }
 
     public function testGetVersionFile()
@@ -78,7 +86,7 @@ class VersionManagerTest extends TestCase
     public function testCheckVersionFalse($versionCheck)
     {
         $vm = new VersionManager();
-        $this->assertEquals(0, $vm->checkVersion($versionCheck));
+        $this->assertEquals(0, $vm->checkVersion($versionCheck['0']));
     }
 
     /**
