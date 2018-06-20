@@ -9,9 +9,6 @@ php:
   - '7.2'
 
 before_script:
-  - travis_retry composer global require bayardev/composer-version:dev-$TRAVIS_BRANCH
-  - travis_retry rm -rf ~/.composer/vendor/bayardev/*
-  - travis_retry ln -s $PWD ~/.composer/vendor/bayardev
   - travis_retry composer install --no-interaction --prefer-source --dev
 
 script:
