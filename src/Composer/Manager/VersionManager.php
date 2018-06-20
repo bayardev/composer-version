@@ -61,6 +61,7 @@ class VersionManager
      */
     public function checkVersion($version)
     {
+        //exit(var_dump($this->followConvention($version)));
         if ($this->followConvention($version)) {
             $this->currentVersion = $version;
             return 1;
@@ -95,7 +96,12 @@ class VersionManager
      */
     public function followConvention($version)
     {
-        return preg_match('#^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}(-[[:graph:]]+[[:alnum:]]){0,1}#', $version);
+        preg_match(
+            '#^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}(-[[:graph:]]+[[:alnum:]]){0,1}#',
+            $version,
+            $result
+        );
+        return !empty($result) ? strcmp($version, $result[0]) == 0 : false;
     }
 
     /**

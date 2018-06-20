@@ -45,6 +45,12 @@ class VersionCommand extends BaseCommand
     protected $gitManager;
 
     /**
+     * Valeur de l'argument "new-version"
+     * @var bool|string
+     */
+    protected $newVersionArg;
+
+    /**
      * Configuration de notre commande "version"
      * @return void
      */
@@ -78,6 +84,7 @@ class VersionCommand extends BaseCommand
         $this->io = new SymfonyStyle($input, $output);
         $this->versionManager = new VersionManager();
         $this->gitManager = new GitManager($input->getOption('gpg-sign'), $input->getOption('prefix'));
+        $this->newVersionArg = $input->getArgument('new-version');
         return $this;
     }
 
@@ -86,43 +93,36 @@ class VersionCommand extends BaseCommand
      * @param  OutputInterface $output
      * @return VersionCommand
      */
-    protected function initialCheck(OutputInterface $output)
+    protected function initialCheck()
     {
         if (!$this->gitManager->isGitRepository()) {//Problème nom
-            $output->writeln("This is not GIT repository !");
-            exit(502);
+            $this->io->error("502 : This is not GIT repository !");
         }
         return $this;
     }
 
     /**
-     * Initialise la version courante et vérifie si il existe un argument
-     * @param  InputInterface $input
-     * @param  OutputInterface $output
+     * Affiche la version courante
      * @return VersionCommand
      */
-    protected function getCurrentVersion(InputInterface $input, OutputInterface $output)
+    protected function getCurrentVersion()
     {
         $this->versionManager->checkVersionFile();
-        if (!$input->getArgument('new-version')) {
-            $output->writeln("Project version : ".$this->versionManager->getAppVersion());
-            exit();
-        }
+        $this->io->text("Project version : ".$this->versionManager->getAppVersion());
         return $this;
     }
 
     /**
      * Vérifie la sémantique de la version passer en argument
-     * @param  InputInterface $input
-     * @param  OutputInterface $output
-     * @return VersionCommand
+     * @return VersionCommand|bool
      */
-    protected function getArguments(InputInterface $input, OutputInterface $output)
+    protected function getArguments()
     {
-        if (!$this->versionManager->checkVersion($input->getArgument('new-version'))) {
-            $output->writeln("Only accept Semantic Version major.minor.patch[-pre_release]");
-            $output->writeln("See https://semver.org/");
-            exit(400);
+        $this->versionManager->checkVersionFile();
+        if (!$this->versionManager->checkVersion($this->newVersionArg)) {
+            $this->io->error("400 : Only accept Semantic Version major.minor.patch[-pre_release]\n
+                See https://semver.org/");
+            return false;
         }
         $this->versionManager->putVersionFile();
         return $this;
@@ -145,27 +145,41 @@ class VersionCommand extends BaseCommand
     }
 
     /**
+     * Permet de faire la monter de version
+     * par rapport à l'argument "new-version"
+     * passer par l'utilisateur
+     * @return VersionCommand|bool
+     */
+    protected function getNewVersion()
+    {
+        $this->io->text("Start the composer plugin : VERSION");
+        if ($this->getArguments() === false) {
+            return false;
+        }
+        $this->io->text("New Version : ".$this->versionManager->getAppVersion());
+        $this->gitManagement();
+        $this->io->text("New version commit and tag update");
+        $this->io->text("THE END!!!");
+        return $this;
+    }
+
+    /**
      * Execution de la commande "version"
      * @param  InputInterface  $input
      * @param  OutputInterface $output
+     * @return VersionCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->init($input, $output);
-
-        $this->initialCheck($output);
-
-        $output->writeln("Start the composer plugin : VERSION");
-        
-        $this->getCurrentVersion($input, $output);
-        $this->getArguments($input, $output);
-
-        $output->writeln("New Version : ".$this->versionManager->getAppVersion());
-
-        $this->gitManagement();
-
-        $output->writeln("New version commit and tag update");
-
-        $output->writeln("THE END!!!");
+        $this->initialCheck();
+        if ($input->getArgument('new-version')) {
+            if ($this->getNewVersion() === false) {
+                return 1;
+            }
+        } else {
+            $this->getCurrentVersion();
+        }
+        return 0;
     }
 }
