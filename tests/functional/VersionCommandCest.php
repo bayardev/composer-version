@@ -2,6 +2,11 @@
 
 namespace Bayard\Tests\Acceptance;
 
+use Composer\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputOption;
+use Composer\Factory;
+
 class VersionCommandCest
 {
     private $version;
@@ -22,6 +27,8 @@ class VersionCommandCest
 
     public function _before()
     {
+        putenv('COMPOSER_ALLOW_XDEBUG=1');
+        putenv('COMPOSER_DISABLE_XDEBUG_WARN=1');
         $this->version = file_get_contents("VERSION");
     }
 
@@ -34,16 +41,32 @@ class VersionCommandCest
     {
         $I->am('Noob client');
         $I->wantTo('Enter a bad command');
-        $I->runShellCommand("composer notFound > /dev/null 2>&1", false);
-        $I->seeResultCodeIsNot(0);
+        try {
+            $input = new ArrayInput(['command' => 'notFound']);
+            $factory = new Factory();
+            $output = $factory->createOutput();
+            $application = new Application();
+            $application->doRun($input, $output);
+            $I->fail("commandNotFound : Command found... WTF");
+        } catch (\Symfony\Component\Console\Exception\CommandNotFoundException $e) {
+            $I->assertEquals('Command "notFound" is not defined.', $e->getMessage());
+        }
     }
 
     public function commandFound($I)
     {
         $I->am('Client');
         $I->wantTo('Enter a good command');
-        $I->runShellCommand("composer version");
-        $I->seeResultCodeIs(0);
+        
+        try {
+            $input = new ArrayInput(['command' => 'version']);
+            $factory = new Factory();
+            $output = $factory->createOutput();
+            $application = new Application();
+            $I->assertEquals($application->doRun($input, $output), 0);
+        } catch (\Symfony\Component\Console\Exception\CommandNotFoundException $e) {
+            $I->fail($e->getMessage());
+        }
     }
 
     /**
@@ -51,12 +74,20 @@ class VersionCommandCest
      */
     public function versionCommand($I, \Codeception\Example $exemple)
     {
-        $tmp = true;
         $I->am('Client');
         $I->wantTo('Enter command to upgrade version project');
-        if (preg_match('#^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}(-[[:graph:]]+[[:alnum:]]){0,1}#', $exemple["version"])) {
-            $I->runShellCommand("composer version -p v ".$exemple["version"]);
-            $I->seeResultCodeIs(0);
+        $factory = new Factory();
+        $output = $factory->createOutput();
+        $application = new Application();
+        preg_match(
+            '#^[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{1,2}(-[[:graph:]]+[[:alnum:]]){0,1}#',
+            $exemple["version"],
+            $ret
+        );
+        $tmp = !empty($ret) ? strcmp($exemple["version"], $ret[0]) == 0 : false;
+        if ($tmp) {
+            $input = new ArrayInput(['command' => 'version', "-p" => "v","new-version" => $exemple["version"]]);
+            $I->assertEquals($application->doRun($input, $output), 0);
             $I->assertEquals(exec("echo $(git log -1 --pretty=%B)"), "New Version : ".$exemple["version"]);
             $I->assertEquals(exec("echo $(git describe --abbrev=0 --tags)"), "v".$exemple["version"]);
         } else {
@@ -64,26 +95,29 @@ class VersionCommandCest
             $var = explode('.', $result[0]);
             switch ($exemple["version"]) {
                 case 'major':
-                    $I->runShellCommand("composer version -p v ".$exemple["version"]);
-                    $I->seeResultCodeIs(0);
+                    $input = new ArrayInput(['command' => 'version', "-p" => "v","new-version" => $exemple["version"]]);
+                    $I->assertEquals($application->doRun($input, $output), 0);
                     $var[0]++;
                     $var[1] = 0;
                     $var[2] = 0;
+                    $tmp = true;
                     break;
                 case 'minor':
-                    $I->runShellCommand("composer version -p v ".$exemple["version"]);
-                    $I->seeResultCodeIs(0);
+                    $input = new ArrayInput(['command' => 'version', "-p" => "v","new-version" => $exemple["version"]]);
+                    $I->assertEquals($application->doRun($input, $output), 0);
                     $var[1]++;
                     $var[2] = 0;
+                    $tmp = true;
                     break;
                 case 'patch':
-                    $I->runShellCommand("composer version -p v ".$exemple["version"]);
-                    $I->seeResultCodeIs(0);
+                    $input = new ArrayInput(['command' => 'version', "-p" => "v","new-version" => $exemple["version"]]);
+                    $I->assertEquals($application->doRun($input, $output), 0);
                     $var[2]++;
+                    $tmp = true;
                     break;
                 default:
-                    $I->runShellCommand("composer version -p v ".$exemple["version"]);
-                    $I->seeResultCodeIsNot(0);
+                    $input = new ArrayInput(['command' => 'version', "-p" => "v","new-version" => $exemple["version"]]);
+                    $I->assertEquals($application->doRun($input, $output), 1);
                     $tmp = false;
                     break;
             }
