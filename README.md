@@ -3,6 +3,8 @@
 [![Latest Stable Version](https://poser.pugx.org/bayardev/composer-version/v/stable)](https://packagist.org/packages/bayardev/composer-version)
 [![Latest Unstable Version](https://poser.pugx.org/bayardev/composer-version/v/unstable)](https://packagist.org/packages/bayardev/composer-version#dev-master)
 [![PHP required version](https://img.shields.io/badge/php-~5.6%7C%3E=7.0.8-8892BF.svg)](https://github.com/bayardev/composer-version/blob/master/composer.json)
+[![Build Status](https://travis-ci.org/bayardev/composer-version.svg?branch=master)](https://travis-ci.org/bayardev/composer-version)
+[![codecov](https://codecov.io/gh/bayardev/composer-version/branch/master/graph/badge.svg)](https://codecov.io/gh/bayardev/composer-version)
 [![License](https://poser.pugx.org/bayardev/composer-version/license)](https://github.com/bayardev/composer-version/blob/master/LICENCE)
 [![Total Downloads](https://poser.pugx.org/bayardev/composer-version/downloads)](https://packagist.org/packages/bayardev/composer-version)
 
