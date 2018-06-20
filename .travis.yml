@@ -8,8 +8,12 @@ php:
   - '7.1'
   - '7.2'
 
+branches:
+  - master
+  - /.*\.x-dev.*/
+
 before_script:
-  - travis_retry composer global require bayardev/composer-version:$TRAVIS_BRANCH
+  - travis_retry composer global require bayardev/composer-version:dev-$TRAVIS_BRANCH
   - travis_retry composer install --no-interaction --prefer-source --dev
 
 script:
